@@ -14,7 +14,7 @@ namespace SnakeGame.SnakeFunctionality
         {
             snakePartsLocations = new List<SnakePart>();
             snakePartsLocations.Add(new SnakePart(new Point(0,0)));
-            snakePartsLocations.Add(new SnakePart(new Point(30, 0)));
+            snakePartsLocations.Add(new SnakePart(new Point(GlobalConstraints.SnakeWidth, 0)));
         }
     }
 }
