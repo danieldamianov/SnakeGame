@@ -37,8 +37,8 @@ namespace SnakeGame
             this.food = new Button();
             this.panel1.ClientSize = new Size(690, 690);
             this.panel1.BackColor = Color.DarkGreen;
-            
-            this.food.Size = new Size(GlobalConstraints.SnakeWidth,GlobalConstraints.SnakeWidth);
+
+            this.food.Size = new Size(GlobalConstraints.SnakeWidth, GlobalConstraints.SnakeWidth);
             this.food.Location = new Point(new Random().Next(50, GlobalConstraints.FormSize - GlobalConstraints.SnakeWidth - 50),
                 new Random().Next(50, GlobalConstraints.FormSize - GlobalConstraints.SnakeWidth - 50));
             //this.food.Location = new Point(470, 470);
@@ -52,7 +52,7 @@ namespace SnakeGame
             this.snakeButtons[0].Size = new Size(GlobalConstraints.SnakeWidth, GlobalConstraints.SnakeWidth);
             this.snakeButtons[0].Location = new Point(0, 0);
             this.snakeButtons[0].Enabled = false;
-            this.snakeButtons[1].Size = new Size(GlobalConstraints.SnakeWidth,GlobalConstraints.SnakeWidth);
+            this.snakeButtons[1].Size = new Size(GlobalConstraints.SnakeWidth, GlobalConstraints.SnakeWidth);
             this.snakeButtons[1].Location = new Point(GlobalConstraints.SnakeWidth, 0);
             this.snakeButtons[1].Enabled = false;
             this.snakeButtons[1].BackColor = Color.Black;
@@ -112,21 +112,35 @@ namespace SnakeGame
             MoveSnake();
             CheckForEatingItself();
         }
-
         private void CheckForEatingItself()
         {
-            var head = this.snakeButtons.Last();
-            
-            var body = this.snakeButtons.Take(this.snakeButtons.Count - 1);
-            
-            if (body.Any(p => this.TwoButtonsOverlap(p, head)))
+            //Stopwatch stopwatch = new Stopwatch();
+            //stopwatch.Start();
+
+            var head = this.snakeButtons[this.snakeButtons.Count - 1];
+
+            for (int i = 0; i < this.snakeButtons.Count - 4; i++)
             {
-                this.timer1.Stop();
-                MessageBox.Show("You lost!");
+                if (TwoButtonsOverlap(this.snakeButtons[i], head))
+                {
+                    this.timer1.Stop();
+                    MessageBox.Show("You lost!");
+                }
             }
+
+            //var head = this.snakeButtons.Last();
+
+            //var body = this.snakeButtons.Take(this.snakeButtons.Count - 1);
+
+            //if (body.Any(p => this.TwoButtonsOverlap(p, head)))
+            //{
+            //    this.timer1.Stop();
+            //    MessageBox.Show("You lost!");
+            //}
+            //File.AppendAllText("file1.txt", this.snakeButtons.Count + "      " + stopwatch.Elapsed.ToString() + Environment.NewLine);
         }
 
-        private bool TwoButtonsOverlap(Button button1,Button button2)
+        private bool TwoButtonsOverlap(Button button1, Button button2)
         {
             return DoOverlap(new Point(button1.Location.X, button1.Location.Y), new Point(button1.Location.X + 30, button1.Location.Y + 30),
                 new Point(button2.Location.X, button2.Location.Y), new Point(button2.Location.X + 30, button2.Location.Y + 30));
@@ -166,8 +180,10 @@ namespace SnakeGame
                 this.food.Location = new Point(random.Next(50, GlobalConstraints.FormSize - GlobalConstraints.SnakeWidth - 50),
                 random.Next(50, GlobalConstraints.FormSize - GlobalConstraints.SnakeWidth - 50));
             }
-            
-            var head = this.snake.snakePartsLocations.Last();
+            var head = this.snake.snakePartsLocations[this.snake.snakePartsLocations.Count - 1];
+            //Stopwatch stopwatch = new Stopwatch();
+            //stopwatch.Start();
+            //File.AppendAllText("file1.txt", stopwatch.Elapsed.ToString() + Environment.NewLine);
             switch (direction)
             {
 
