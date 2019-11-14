@@ -26,19 +26,22 @@ namespace SnakeGame
         private Direction direction;
         private Button food;
 
+        private bool hasReceivedDirectionInTheInterval;
+
         private List<Button> snakeButtons;
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
-            this.ClientSize = new Size(800, 800);
+            this.hasReceivedDirectionInTheInterval = false;
+            this.ClientSize = new Size(1000, 1000);
             this.food = new Button();
-            this.panel1.ClientSize = new Size(500, 500);
-            this.panel1.BackColor = Color.Red;
+            this.panel1.ClientSize = new Size(690, 690);
+            this.panel1.BackColor = Color.DarkGreen;
+            
             this.food.Size = new Size(GlobalConstraints.SnakeWidth,GlobalConstraints.SnakeWidth);
             this.food.Location = new Point(new Random().Next(50, GlobalConstraints.FormSize - GlobalConstraints.SnakeWidth - 50),
                 new Random().Next(50, GlobalConstraints.FormSize - GlobalConstraints.SnakeWidth - 50));
-            this.food.Location = new Point(470, 470);
+            //this.food.Location = new Point(470, 470);
             this.panel1.Controls.Add(this.food);
             this.snake = new Snake();
             this.direction = Direction.Right;
@@ -59,34 +62,43 @@ namespace SnakeGame
         }
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
+            if (hasReceivedDirectionInTheInterval == true)
+            {
+                return true;
+            }
             switch (keyData)
             {
                 case Keys.Down:
                     if (this.direction != Direction.Up)
                     {
-                        this.direction = Direction.Down; 
+                        this.direction = Direction.Down;
+                        this.hasReceivedDirectionInTheInterval = true;
                     }
                     break;
                 case Keys.Up:
                     if (this.direction != Direction.Down)
                     {
-                        this.direction = Direction.Up; 
+                        this.direction = Direction.Up;
+                        this.hasReceivedDirectionInTheInterval = true;
                     }
                     break;
                 case Keys.Right:
                     if (this.direction != Direction.Left)
                     {
                         this.direction = Direction.Right;
+                        this.hasReceivedDirectionInTheInterval = true;
                     }
                     break;
                 case Keys.Left:
                     if (this.direction != Direction.Right)
                     {
                         this.direction = Direction.Left;
+                        this.hasReceivedDirectionInTheInterval = true;
                     }
                     break;
             }
-            return base.ProcessCmdKey(ref msg, keyData);
+            return true;
+            //return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -96,25 +108,21 @@ namespace SnakeGame
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            this.hasReceivedDirectionInTheInterval = false;
             MoveSnake();
             CheckForEatingItself();
         }
 
         private void CheckForEatingItself()
         {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
             var head = this.snakeButtons.Last();
-            File.AppendAllText("log.txt", stopwatch.Elapsed.ToString());
-            stopwatch.Start();
+            
             var body = this.snakeButtons.Take(this.snakeButtons.Count - 1);
-            File.AppendAllText("log.txt", stopwatch.Elapsed.ToString());
-            stopwatch.Start();
+            
             if (body.Any(p => this.TwoButtonsOverlap(p, head)))
             {
-                File.AppendAllText("log.txt", stopwatch.Elapsed.ToString());
+                this.timer1.Stop();
                 MessageBox.Show("You lost!");
-                File.AppendAllText("log.txt", Environment.NewLine);
             }
         }
 
@@ -157,7 +165,6 @@ namespace SnakeGame
                 Random random = new Random();
                 this.food.Location = new Point(random.Next(50, GlobalConstraints.FormSize - GlobalConstraints.SnakeWidth - 50),
                 random.Next(50, GlobalConstraints.FormSize - GlobalConstraints.SnakeWidth - 50));
-                File.AppendAllText("logs.txt", $"{this.food.Location.X} {this.food.Location.Y}{Environment.NewLine}");
             }
             
             var head = this.snake.snakePartsLocations.Last();
@@ -190,8 +197,43 @@ namespace SnakeGame
             for (int i = 0; i < this.snakeButtons.Count; i++)
             {
                 this.snakeButtons[i].Location = new Point(this.snake.snakePartsLocations[i].point.X, this.snake.snakePartsLocations[i].point.Y);
+                if (this.IsOutOfTheBoard(this.snakeButtons[i]))
+                {
+                    this.snakeButtons[i].Location = this.GetLocationPassedThroughWall(this.snakeButtons[i].Location);
+                    this.snake.snakePartsLocations[i].point = this.snakeButtons[i].Location;
+                }
             }
 
+        }
+
+        private Point GetLocationPassedThroughWall(Point location)
+        {
+            if (location.X < 0)
+            {
+                return new Point(660, location.Y);
+            }
+            if (location.X > 660)
+            {
+                return new Point(0, location.Y);
+            }
+            if (location.Y < 0)
+            {
+                return new Point(location.X, 660);
+            }
+            if (location.Y > 660)
+            {
+                return new Point(location.X, 0);
+            }
+            throw new Exception();
+        }
+
+        private bool IsOutOfTheBoard(Button button)
+        {
+            if (button.Location.X < 0 || button.Location.Y < 0 || button.Location.X > 660 || button.Location.Y > 660)
+            {
+                return true;
+            }
+            return false;
         }
 
         private bool CheckForEating()
